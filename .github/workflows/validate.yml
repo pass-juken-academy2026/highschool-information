@@ -45,3 +45,32 @@ jobs:
               print(f'Checked {f}: {len(a.scripts)} scripts')
           if failed: sys.exit(1)
           PY
+
+      - name: Check Stage 2 Information I coverage and answer data
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re, sys
+          source = Path('practice.html').read_text(encoding='utf-8')
+          required = [
+              '【プログラムトレース】', '【アルゴリズム】',
+              '【データ分析】', '【情報セキュリティ】',
+              '【ネットワーク・プロトコル】',
+              '【情報デザイン・共通テスト】',
+          ]
+          missing = [x for x in required if x not in source]
+          record_re = re.compile(r'\["([^"]*)",\[([^\]]*)\],(\d+),"([^"]*)"\]')
+          records = record_re.findall(source)
+          for n, (_, raw_choices, raw_answer, explanation) in enumerate(records, 1):
+              choices = re.findall(r'"([^"]*)"', raw_choices)
+              if len(choices) < 2 or int(raw_answer) >= len(choices) or not explanation.strip():
+                  missing.append(f'invalid answer data in question {n}')
+          if len(records) < 16:
+              missing.append(f'expected at least 16 question records, found {len(records)}')
+          if missing:
+              print('Stage 2 Information I validation errors:')
+              print('\n'.join(missing))
+              sys.exit(1)
+          print(f'Stage 2 Information I coverage OK; validated {len(records)} question records')
+          PY
