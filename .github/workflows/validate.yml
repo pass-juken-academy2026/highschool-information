@@ -74,3 +74,5 @@ jobs:
               sys.exit(1)
           print(f'Stage 2 Information I coverage OK; validated {len(records)} question records')
           PY
+      - name: Check common-test stimulus groups and answer data
+        run: node tests/common-test-audit.cjs
