@@ -29,6 +29,7 @@ const errors = [];
 if (stimuli.length !== 4) errors.push('Expected four shared stimuli, found ' + stimuli.length);
 if (questions.length !== 20) errors.push('Expected 20 common-test questions, found ' + questions.length);
 const counts = new Map(), seen = new Set(), prompts = new Set();
+const answerPositions = [0, 0, 0, 0];
 let previous = null;
 for (let i = 0; i < questions.length; i++) {
   const q = questions[i], label = 'question ' + (i + 1);
@@ -36,6 +37,7 @@ for (let i = 0; i < questions.length; i++) {
   if (typeof q[0] !== 'string' || !q[0].trim()) errors.push(label + ': empty prompt');
   if (!Array.isArray(q[1]) || q[1].length !== 4 || q[1].some(x => typeof x !== 'string' || !x.trim())) errors.push(label + ': expected four non-empty options');
   if (!Number.isInteger(q[2]) || q[2] < 0 || q[2] > 3) errors.push(label + ': invalid answer index');
+  else answerPositions[q[2]]++;
   if (typeof q[3] !== 'string' || !q[3].trim()) errors.push(label + ': missing explanation');
   if (!Number.isInteger(q[4]) || q[4] < 0 || q[4] >= stimuli.length) errors.push(label + ': invalid stimulus index');
   if (q[4] !== previous) {
@@ -47,6 +49,11 @@ for (let i = 0; i < questions.length; i++) {
   if (prompts.has(normalized)) errors.push(label + ': duplicate prompt');
   prompts.add(normalized);
 }
-for (let i = 0; i < stimuli.length; i++) if (counts.get(i) !== 5) errors.push('Stimulus ' + i + ' should have exactly 5 linked questions, found ' + (counts.get(i) || 0));
+for (let i = 0; i < stimuli.length; i++) {
+  if (counts.get(i) !== 5) errors.push('Stimulus ' + i + ' should have exactly 5 linked questions, found ' + (counts.get(i) || 0));
+  if (typeof stimuli[i].text !== 'string' || stimuli[i].text.trim().length < 200) errors.push('Stimulus ' + i + ' is too short; expected at least 200 characters');
+}
+if (Math.max(...answerPositions) - Math.min(...answerPositions) > 1) errors.push('Answer positions are unbalanced: ' + answerPositions.join(','));
 if (errors.length) { console.error(errors.join('\n')); process.exit(1); }
-console.log('Information I common-test bank OK: 20 questions across four five-question stimulus groups.');
+console.log('Information I common-test bank OK: 20 questions across four long stimulus groups.');
+console.log('Answer positions A-D: ' + answerPositions.join(', '));
