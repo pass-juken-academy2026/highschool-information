@@ -22,12 +22,12 @@ const ADVANCED_INFO_QUESTIONS=[
 ];
 /* Correct the deliberately double-counted threshold exercise before it enters the bank. */
 ADVANCED_INFO_QUESTIONS[1]=["【応用・プログラム】次の処理を実行する。count=0 とし、scores=[58,72,85,72,91] の各値について、70以上ならcountを1増やし、さらに80以上ならcountをもう1増やす。処理終了時のcountは？",["4","5","6","7"],2,"70以上は72、85、72、91の4件。さらに80以上の85、91の2件も追加で数えるため、合計6。条件が重なるとき、両方の処理が実行される点に注意する。",3];
-ADVANCED_INFO_QUESTIONS.forEach(q=>{q.push(3);BANK.push(q);});
+ADVANCED_INFO_QUESTIONS.forEach(q=>BANK.push(q));
 const BASIC_QUESTION_INDICES=[0,2,3,4,5,8,9,11,13,14,17,18,19,21,22,23,24,27,30,33];function takeUnseenInfoPool(pool,count,key){const id=q=>JSON.stringify(q),shuffle=a=>{const out=a.slice();for(let i=out.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[out[i],out[j]]=[out[j],out[i]];}return out;};let seen=[];try{const saved=JSON.parse(localStorage.getItem(key)||"[]");if(Array.isArray(saved))seen=[...new Set(saved.filter(x=>typeof x==="string"))];}catch(e){}let available=pool.filter(q=>!seen.includes(id(q)));if(!available.length){seen=[];available=pool.slice();}const selected=shuffle(available).slice(0,count);seen=seen.concat(selected.map(id));try{localStorage.setItem(key,JSON.stringify(seen));}catch(e){}return selected.sort((a,b)=>(Number(a[4])||0)-(Number(b[4])||0)||String(a[0]).localeCompare(String(b[0]),"ja"));}function takeUnseenBasicQuestions(count){const key="hsInformationBasicQuestionQueue";const pool=BASIC_QUESTION_INDICES.filter(i=>i>=0&&i<BANK.length);const shuffle=a=>{const out=a.slice();for(let i=out.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[out[i],out[j]]=[out[j],out[i]];}return out;};let remaining=pool.slice();try{const saved=JSON.parse(localStorage.getItem(key)||"null");if(Array.isArray(saved)){const valid=[...new Set(saved.filter(i=>pool.includes(i)))];if(valid.length)remaining=valid;}}catch(e){}if(!remaining.length)remaining=pool.slice();const selected=shuffle(remaining).slice(0,count);const next=remaining.filter(i=>!selected.includes(i));try{if(next.length)localStorage.setItem(key,JSON.stringify(next));else localStorage.removeItem(key);}catch(e){}return selected.map(i=>BANK[i]);}
 const $=id=>document.getElementById(id);let questions=[],idx=0,answers=[],locked=false,reviewOnly=false;
 function takeUnseenDifficultyQuestions(level,count=10){
  const key="hsInformationDifficulty_"+level,shuffle=a=>{const out=a.slice();for(let i=out.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[out[i],out[j]]=[out[j],out[i]];}return out;};
- const pool=BANK.filter(q=>q[5]===level);let seen=[];
+ const pool=BANK.filter(q=>q[4]===level);let seen=[];
  try{const saved=JSON.parse(localStorage.getItem(key)||"[]");if(Array.isArray(saved))seen=[...new Set(saved.filter(x=>typeof x==="string"))];}catch(e){}
  let available=pool.filter(q=>!seen.includes(q[0]));
  if(!available.length){seen=[];available=pool.slice();}
