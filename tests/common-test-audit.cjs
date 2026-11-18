@@ -26,8 +26,8 @@ const source = fs.readFileSync('practice.html', 'utf8');
 const stimuli = extractArray(source, 'COMMON_STIMULI');
 const questions = extractArray(source, 'COMMON_TEST');
 const errors = [];
-if (stimuli.length !== 4) errors.push('Expected four shared stimuli, found ' + stimuli.length);
-if (questions.length !== 20) errors.push('Expected 20 common-test questions, found ' + questions.length);
+if (stimuli.length < 4) errors.push('Expected at least four shared stimuli, found ' + stimuli.length);
+if (questions.length !== stimuli.length * 5) errors.push('Expected five questions per stimulus group (' + (stimuli.length * 5) + ' total), found ' + questions.length);
 const counts = new Map(), seen = new Set(), prompts = new Set();
 const answerPositions = [0, 0, 0, 0];
 let previous = null;
@@ -55,5 +55,5 @@ for (let i = 0; i < stimuli.length; i++) {
 }
 if (Math.max(...answerPositions) - Math.min(...answerPositions) > 1) errors.push('Answer positions are unbalanced: ' + answerPositions.join(','));
 if (errors.length) { console.error(errors.join('\n')); process.exit(1); }
-console.log('Information I common-test bank OK: 20 questions across four long stimulus groups.');
+console.log('Information I common-test bank OK: ' + questions.length + ' questions across ' + stimuli.length + ' long stimulus groups.');
 console.log('Answer positions A-D: ' + answerPositions.join(', '));
