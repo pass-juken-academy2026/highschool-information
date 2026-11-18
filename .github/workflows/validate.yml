@@ -60,7 +60,7 @@ jobs:
               '【情報デザイン・共通テスト】',
           ]
           missing = [x for x in required if x not in source]
-          record_re = re.compile(r'\["([^"]*)",\[([^\]]*)\],(\d+),"([^"]*)"\]')
+          record_re = re.compile(r'\["([^"]*)",\[([^\]]*)\],(\d+),"([^"]*)"(?:,\d+)?\]')
           records = record_re.findall(source)
           for n, (_, raw_choices, raw_answer, explanation) in enumerate(records, 1):
               choices = re.findall(r'"([^"]*)"', raw_choices)
