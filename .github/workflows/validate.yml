@@ -60,6 +60,19 @@ jobs:
               '【情報デザイン・共通テスト】',
           ]
           missing = [x for x in required if x not in source]
+          bank_match = re.search(r'const BANK=(\[.*?\]);', source, re.S)
+          if not bank_match:
+              missing.append('question bank could not be parsed')
+          else:
+              bank = __import__('json').loads(bank_match.group(1))
+              level_counts = {1: 0, 2: 0}
+              for q in bank:
+                  if len(q) < 5 or q[4] not in (1, 2):
+                      missing.append('base-bank question missing level 1/2 classification')
+                      break
+                  level_counts[q[4]] += 1
+              if not all(level_counts.values()):
+                  missing.append('difficulty pools 1 and 2 must both contain questions')
           record_re = re.compile(r'\["([^"]*)",\[([^\]]*)\],(\d+),"([^"]*)"(?:,\d+)?\]')
           records = record_re.findall(source)
           for n, (_, raw_choices, raw_answer, explanation) in enumerate(records, 1):
